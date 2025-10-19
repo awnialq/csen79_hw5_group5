@@ -12,6 +12,17 @@
 
 namespace csen79 {
 
+    Bag::Bag() : data(nullptr), size(0), last(0) {
+        std::cout << "default constructor" << std::endl;
+    }
+    
+    Bag::~Bag() {
+        std::cout << "destructor" <<  std::endl;
+        if(data != nullptr){
+            delete [] data;
+        }
+    }
+    
     // assignment
     Bag &Bag::operator=(const Bag &rhs) {
         std::cout << "assign" << std::endl;
