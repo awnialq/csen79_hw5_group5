@@ -11,11 +11,18 @@
 #include "bag.h"
 
 namespace csen79 {
-
+    // destructor
+    Bag::~Bag() {
+        std::cout << "destructor" <<  std::endl;
+        if(data != nullptr){
+            delete [] data;
+        }
+    }
+    
     // assignment
     Bag &Bag::operator=(const Bag &rhs) {
         std::cout << "assign" << std::endl;
-        memcpy(this->data, rhs.data, DATASIZE);
+        memcpy(this->data, rhs.data, size * sizeof(Data));
         return *this;
     }
 
@@ -37,20 +44,42 @@ namespace csen79 {
         return this->operator=(rhs);
     }
 
-
-    // simple asssess functions
-    // replace them with appropriate ones for assignments
-    const Bag::Data &Bag::getData(const int i) const {
-        if (i < 0 || i >= DATASIZE)
-            throw std::out_of_range(std::string("index out of range"));
-        return data[i];
+    void Bag::push(const Data &d) {
+        if(last >= size){
+            resize();
+        }
+        data[last++] = d;
     };
-    void Bag::setData(const int i, const Data &d) {
-        if (i < 0 || i >= DATASIZE)
-            throw std::out_of_range(std::string("index out of range"));
-        data[i] = (Data) d;
+
+    void Bag::resize() {
+        if(size == 0){
+            size = 1;
+            data = new Data[size];
+            return;
+        }
+        Data *temp = new Data[size * 2];
+        memcpy(temp, data, sizeof(Data) * size);
+        delete [] data;
+        data = temp;
+        size = size * 2;
     }
-    void Bag::push(const Data &) {};
-    Bag::Data Bag::pop() {return 0;};
-    void Bag::print() const {};
+
+    Bag::Data Bag::pop() {
+        if(last <= 0){
+            throw std::out_of_range("pop from empty bag");
+        }
+        return data[--last];
+    };
+
+    void Bag::print() const {
+        if(last == 0){
+            std::cout << "Nothing in bag to print" << std::endl;
+            return;
+        }
+        std::cout << "Bag contents: ";
+        for(int i = 0; i < last; i++){
+            std::cout << data[i] << " ";
+        }
+        std::cout << std::endl;
+    };
 }

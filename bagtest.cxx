@@ -28,11 +28,23 @@ int main(void) {
                 cerr << "Data out of range" << endl;
                 continue;
             }
-            bag.push(data);
+            try {
+                bag.push(data);
+            } catch (const bad_alloc &e) {
+                cerr << "Memory allocation failed" << endl;
+                continue;
+            }
         }
             break;
         case POP:
+            try{
+                cout << "Value popped: " << bag.pop() << endl;
+            } catch(std::out_of_range &e){
+                cout << "Bag is empty" << endl;
+            }
+            break;
         case PRINT:
+            bag.print();
             break;
         case QUIT:
             quit = true;
