@@ -16,21 +16,32 @@ namespace csen79 {
         std::cout << "destructor" <<  std::endl;
         if(data != nullptr){
             delete [] data;
+            data = nullptr;
         }
     }
     
-    // assignment
+    // COPY assignment operator
     Bag &Bag::operator=(const Bag &rhs) {
         std::cout << "assign" << std::endl;
-        memcpy(this->data, rhs.data, size * sizeof(Data));
+        if(this == &rhs) return *this;
+        
+        Data *newData = nullptr;
+        if(rhs.size > 0) {
+            try {
+                newData = new Data[rhs.size];
+            } catch(const std::bad_alloc &e) {
+                throw;
+            }
+            memcpy(newData, rhs.data, rhs.last * sizeof(Data));
+        }
+        
+        if(data != nullptr) delete [] data;
+        data = newData;
+        size = rhs.size;
+        last = rhs.last;
+        
         return *this;
     }
-
-    // move constructor
-    Bag::Bag(Bag &&rhs) {
-        std::cout << "move constructor; calling assignment" << std::endl;
-        this->operator=(rhs);
-    }    
 
     // copy constructor
     Bag::Bag(const Bag &rhs) {
@@ -38,13 +49,34 @@ namespace csen79 {
         this->operator=(rhs);
     }    
 
-    // move
+    // MOVE assignment operator (note the &&)
     Bag &Bag::operator=(Bag &&rhs) {
         std::cout << "move; calling assign" << std::endl;
-        return this->operator=(rhs);
+        if(this == &rhs) return *this;
+        
+        if(data != nullptr) delete [] data;
+        
+        data = rhs.data;
+        size = rhs.size;
+        last = rhs.last;
+        
+        rhs.data = nullptr;
+        rhs.size = 0;
+        rhs.last = 0;
+        
+        return *this;
     }
 
+    // move constructor
+    Bag::Bag(Bag &&rhs) {
+        std::cout << "move constructor; calling assignment" << std::endl;
+        this->operator=(std::move(rhs));  // ADD std::move here!
+    }    
+
     void Bag::push(const Data &d) {
+        if(last >= 2147483647 / 2){
+            throw std::overflow_error("Stack overflow");
+        }
         if(last >= size){
             resize();
         }
@@ -54,10 +86,23 @@ namespace csen79 {
     void Bag::resize() {
         if(size == 0){
             size = 1;
-            data = new Data[size];
+            try {
+                data = new Data[size];
+            } catch(const std::bad_alloc &e) {
+                size = 0;
+                throw;
+            }
             return;
         }
-        Data *temp = new Data[size * 2];
+        if(size > 2147483647 / 2){
+            throw std::overflow_error("Cannot resize");
+        }
+        Data *temp = nullptr;
+        try {
+            temp = new Data[size * 2];
+        } catch(const std::bad_alloc &e) {
+            throw;
+        }
         memcpy(temp, data, sizeof(Data) * size);
         delete [] data;
         data = temp;
