@@ -11,11 +11,7 @@
 #include "bag.h"
 
 namespace csen79 {
-
-    Bag::Bag() : data(nullptr), size(0), last(0) {
-        std::cout << "default constructor" << std::endl;
-    }
-    
+    // destructor
     Bag::~Bag() {
         std::cout << "destructor" <<  std::endl;
         if(data != nullptr){
@@ -26,7 +22,7 @@ namespace csen79 {
     // assignment
     Bag &Bag::operator=(const Bag &rhs) {
         std::cout << "assign" << std::endl;
-        memcpy(this->data, rhs.data, DATASIZE);
+        memcpy(this->data, rhs.data, size * sizeof(Data));
         return *this;
     }
 
@@ -48,20 +44,21 @@ namespace csen79 {
         return this->operator=(rhs);
     }
 
-
-    // simple asssess functions
-    // replace them with appropriate ones for assignments
-    const Bag::Data &Bag::getData(const int i) const {
-        if (i < 0 || i >= DATASIZE)
-            throw std::out_of_range(std::string("index out of range"));
-        return data[i];
+    void Bag::push(const Data &d) {
+        if(last >= size){
+            resize();
+        }
+        data[last++] = d;
     };
-    void Bag::setData(const int i, const Data &d) {
-        if (i < 0 || i >= DATASIZE)
-            throw std::out_of_range(std::string("index out of range"));
-        data[i] = (Data) d;
+
+    void Bag::resize() {
+        Data *temp = new Data[size * 2];
+        memcpy(temp, data, sizeof(Data) * size);
+        delete [] data;
+        data = temp;
+        size = size * 2;
     }
-    void Bag::push(const Data &) {};
+
     Bag::Data Bag::pop() {return 0;};
     void Bag::print() const {};
 }

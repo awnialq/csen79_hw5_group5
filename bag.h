@@ -9,7 +9,7 @@ namespace csen79 {
 class Bag {
 public:
     using Data = int;   // create an alias for the data
-    Bag(){}
+    Bag(): data(nullptr), size(0), last(0){};
 
     // rule of 5
     ~Bag();
@@ -30,6 +30,8 @@ private:
     Data *data;
     int size;
     int last;
+private:
+    void resize();
 };
 
 }
